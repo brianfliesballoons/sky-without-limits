@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impact &amp; Data — Sky Without Limits</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Page-specific styles for data visualizations */
+    .metric-ring {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      position: relative;
+    }
+    .metric-ring svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .metric-ring circle {
+      fill: none;
+      stroke-width: 6;
+    }
+    .metric-ring .ring-bg { stroke: var(--slate-100); }
+    .metric-ring .ring-fill {
+      stroke: var(--sky-400);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .metric-ring .ring-fill.warm { stroke: var(--warm-400); }
+    .metric-ring .ring-label {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .metric-ring .ring-label .num {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--slate-800);
+      line-height: 1;
+      display: block;
+    }
+    .metric-ring .ring-label .unit {
+      font-size: 0.7rem;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .cause-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .cause-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .cause-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .cause-legend-item .cause-label {
+      font-size: 0.85rem;
+      color: var(--slate-600);
+      flex: 1;
+    }
+    .cause-legend-item .cause-pct {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--slate-700);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.5rem;
+    }
+    .kpi {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: var(--white);
+      border: 1px solid var(--slate-100);
+      border-radius: 12px;
+    }
+    .kpi .kpi-value {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--sky-500);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .kpi .kpi-label {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+      line-height: 1.4;
+    }
+
+    .research-card {
+      background: var(--white);
+      border: 1px solid var(--slate-100);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1rem;
+    }
+    .research-card .source {
+      font-size: 0.75rem;
+      color: var(--slate-400);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .cost-breakdown {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .cost-item {
+      background: var(--white);
+      border: 1px solid var(--slate-100);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .cost-item .cost-amount {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--sky-500);
+      margin-bottom: 0.25rem;
+    }
+    .cost-item .cost-label {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+    }
+    .cost-item.covered {
+      background: var(--slate-50);
+      border-color: var(--slate-100);
+    }
+    .cost-item.covered .cost-amount {
+      color: var(--slate-400);
+      text-decoration: line-through;
+      text-decoration-color: var(--slate-300);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">Sky Without <span>Limits</span></a>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Program</a></li>
+      <li><a href="summary.html">Proposal Summary</a></li>
+      <li><a href="impact.html" class="active">Impact &amp; Data</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ==================== HEADER ==================== -->
+<section class="hero" style="padding: 8rem 0 4rem;">
+  <div class="container">
+    <p class="section-label fade-up">Impact &amp; Data</p>
+    <h1 class="fade-up delay-1">The numbers behind the mission</h1>
+    <p class="lead fade-up delay-2">Data on paralysis prevalence, the evidence base for adaptive recreation, program economics, and our projected outcomes.</p>
+  </div>
+</section>
+
+<!-- ==================== PARALYSIS PREVALENCE ==================== -->
+<section>
+  <div class="container">
+    <p class="section-label">The Scale of Need <span class="sourced-label">Peer-Reviewed</span></p>
+    <h2 class="mb-2">Paralysis in the United States</h2>
+    <p class="lead mb-6">An estimated 5.4 million Americans — approximately 1 in 50 — live with some form of paralysis, a figure nearly 40% higher than previous estimates.</p>
+
+    <div class="two-col">
+      <div>
+        <h3 class="mb-3">Leading Causes of Paralysis</h3>
+        <div class="data-bar-group">
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Stroke</span><span>33.7%</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 33.7%;"></div></div>
+          </div>
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Spinal Cord Injury</span><span>27.3%</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 27.3%;"></div></div>
+          </div>
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Multiple Sclerosis</span><span>18.6%</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 18.6%;"></div></div>
+          </div>
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Cerebral Palsy</span><span>8.3%</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 8.3%;"></div></div>
+          </div>
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Other (ALS, etc.)</span><span>12.1%</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 12.1%;"></div></div>
+          </div>
+        </div>
+        <p class="mt-3" style="font-size: 0.8rem; color: var(--slate-400);">Source: CDC / Armour et al. (2016), American Journal of Public Health</p>
+      </div>
+      <div>
+        <h3 class="mb-3">Key Findings</h3>
+        <div class="research-card">
+          <p><strong>69% of Americans</strong> underestimate the prevalence of paralysis in the United States.</p>
+          <p class="source">Reeve Foundation Living with Paralysis Survey, 2022</p>
+        </div>
+        <div class="research-card">
+          <p>Individuals with physical disabilities <strong>participate less frequently</strong> in recreational activity due to barriers including accessibility, transportation, finances, and limited awareness.</p>
+          <p class="source">Diaz et al. (2019), Sports Medicine and Arthroscopy Review</p>
+        </div>
+        <div class="research-card">
+          <p>A 2023 meta-analysis confirmed <strong>positive trends in both physical and mental quality of life</strong> outcomes for people with physical disabilities who participate in adaptive sports.</p>
+          <p class="source">Isidoro-Cabañas et al. (2023), Healthcare</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== RESEARCH EVIDENCE ==================== -->
+<section class="bg-soft">
+  <div class="container">
+    <p class="section-label">Evidence Base <span class="sourced-label">Peer-Reviewed</span></p>
+    <h2 class="mb-2">Why adaptive recreation matters</h2>
+    <p class="lead mb-6">Peer-reviewed research consistently demonstrates measurable quality of life improvements.</p>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-value" style="font-size: 1.3rem;">Physical</div>
+        <div class="kpi-label">Improved physical health and functional capacity</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="font-size: 1.3rem;">Mental</div>
+        <div class="kpi-label">Better mood, reduced depression and anxiety</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="font-size: 1.3rem;">Social</div>
+        <div class="kpi-label">Increased connectedness and community reintegration</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" style="font-size: 1.3rem;">Self</div>
+        <div class="kpi-label">Higher self-esteem, confidence, and life satisfaction</div>
+      </div>
+    </div>
+
+    <div class="highlight-box mt-6">
+      <p>"Regular recreational and sports activity participation has shown to have a positive association with improvements in quality of life, life satisfaction, community reintegration, mood, and employment in those with disabilities."</p>
+      <p style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.5rem;">— Diaz et al. (2019), Sports Medicine and Arthroscopy Review, p. 79</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROGRAM ECONOMICS ==================== -->
+<section>
+  <div class="container">
+    <p class="section-label">Program Economics <span class="sourced-label">Published Pricing</span></p>
+    <h2 class="mb-2">Maximum impact per dollar</h2>
+    <p class="lead mb-6">Our grant rate of $500 per flight represents a 40–70% discount off market pricing, with 100% of grant funds going directly to flight operations.</p>
+
+    <div class="two-col mb-6">
+      <div>
+        <h3 class="mb-3">Market Price Comparison</h3>
+        <table class="clean-table">
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th style="text-align: right;">Private Flight Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Seattle Ballooning</td>
+              <td style="text-align: right;">$1,650</td>
+            </tr>
+            <tr>
+              <td>Above the Clouds Inc.</td>
+              <td style="text-align: right;">$1,599</td>
+            </tr>
+            <tr>
+              <td>Balloon Quest Inc.</td>
+              <td style="text-align: right;">$1,399–$1,499</td>
+            </tr>
+            <tr>
+              <td>Big Red Balloon</td>
+              <td style="text-align: right;">$850</td>
+            </tr>
+            <tr style="background: var(--sky-50); font-weight: 600;">
+              <td style="color: var(--sky-600);">Sky Without Limits (Grant Rate)</td>
+              <td style="text-align: right; color: var(--sky-600);">$500</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="source-note">Based on published 2025–2026 pricing: bigredballoon.com, seattleballooning.com, Balloon Quest Inc., Above the Clouds Inc., Napa Valley Aloft.</p>
+      </div>
+      <div>
+        <h3 class="mb-3">What $500 covers</h3>
+        <div class="cost-breakdown">
+          <div class="cost-item">
+            <div class="cost-amount">$500</div>
+            <div class="cost-label">Per flight grant rate</div>
+          </div>
+          <div class="cost-item covered">
+            <div class="cost-amount">Admin</div>
+            <div class="cost-label">Covered by org resources</div>
+          </div>
+          <div class="cost-item covered">
+            <div class="cost-amount">Insurance</div>
+            <div class="cost-label">Covered by org resources</div>
+          </div>
+          <div class="cost-item covered">
+            <div class="cost-amount">Equipment</div>
+            <div class="cost-label">Covered by org resources</div>
+          </div>
+        </div>
+        <p class="mt-3" style="font-size: 0.85rem; color: var(--slate-500);">Administrative, insurance, equipment maintenance, and outreach costs are funded through commercial flight revenue, individual donations, and volunteer in-kind support.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box text-center">
+      <h3 class="mb-2">Funding Scenarios</h3>
+      <div class="kpi-grid" style="max-width: 700px; margin: 0 auto;">
+        <div class="kpi" style="border: none; padding: 1rem;">
+          <div class="kpi-value">10</div>
+          <div class="kpi-label">flights at $5,000</div>
+        </div>
+        <div class="kpi" style="border: none; padding: 1rem;">
+          <div class="kpi-value">25</div>
+          <div class="kpi-label">flights at $12,500</div>
+        </div>
+        <div class="kpi" style="border: none; padding: 1rem;">
+          <div class="kpi-value">49</div>
+          <div class="kpi-label">flights at $24,999</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROJECTED OUTCOMES ==================== -->
+<section class="bg-soft">
+  <div class="container">
+    <p class="section-label">Projected Outcomes <span class="projected-label">Program Targets</span></p>
+    <h2 class="mb-2">What we will measure</h2>
+    <p class="lead mb-4">A structured evaluation framework using validated instruments to capture immediate and sustained impact.</p>
+    <p class="source-note mb-6">The outcome targets below are program projections set by Reach for the Stars Foundation — not externally sourced statistics. They represent the benchmarks we aim to meet during the grant period. Survey instruments adapted from the Satisfaction with Life Scale (Diener et al., 1985) and the Positive and Negative Affect Schedule (Watson et al., 1988), both widely validated in disability research.</p>
+
+    <div class="two-col">
+      <div>
+        <h3 class="mb-3">Outcome Targets (at maximum funding)</h3>
+        <div class="data-bar-group">
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Participant satisfaction (recommend to others)</span><span>90%+</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 90%;"></div></div>
+          </div>
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Program completion rate</span><span>90%+</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 90%;"></div></div>
+          </div>
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Report increased sense of freedom</span><span>70%+</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 70%;"></div></div>
+          </div>
+          <div class="data-bar-item">
+            <div class="data-bar-label"><span>Follow-up survey response rate</span><span>70%+</span></div>
+            <div class="data-bar"><div class="data-bar-fill" style="--target-width: 70%;"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-3">Evaluation Methodology</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h3>Pre-Flight Survey</h3>
+            <p>Baseline quality of life, confidence, and social connectedness using SWLS and PANAS-adapted scales.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>Post-Flight Survey</h3>
+            <p>Immediate impact assessment — same instruments plus satisfaction and recommendation measures.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>30-Day Follow-Up</h3>
+            <p>Sustained impact via email and phone. Multiple contact methods and reminders to ensure 70%+ response.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>90-Day Follow-Up</h3>
+            <p>Long-term impact. Qualitative data collection — testimonials, photos, and video reflections.</p>
+          </div>
+          <div class="timeline-item">
+            <h3>Program Impact Report</h3>
+            <p>Comprehensive analysis shared with the Reeve Foundation — quantitative results, participant stories, and lessons learned.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== OPERATIONAL TRACK RECORD ==================== -->
+<section>
+  <div class="container text-center">
+    <p class="section-label">Track Record <span class="sourced-label">Org Records</span></p>
+    <h2 class="mb-6">26 years of proven safety and service</h2>
+    <div class="stat-grid mb-6">
+      <div class="stat">
+        <div class="number">2,000+</div>
+        <div class="label">Free flights completed</div>
+      </div>
+      <div class="stat">
+        <div class="number">10,000s</div>
+        <div class="label">Tethered passengers served</div>
+      </div>
+      <div class="stat">
+        <div class="number">100%</div>
+        <div class="label">Safety record maintained</div>
+      </div>
+      <div class="stat">
+        <div class="number">0</div>
+        <div class="label">Serious injuries — ever</div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="number" style="font-size: 2rem;">~300</div>
+        <div class="label">Flyable days/year in SoCal</div>
+      </div>
+      <div class="stat">
+        <div class="number" style="font-size: 2rem;">2</div>
+        <div class="label">Launch sites (CA &amp; WA)</div>
+      </div>
+      <div class="stat">
+        <div class="number" style="font-size: 2rem;">1 hr</div>
+        <div class="label">Approximate flight duration</div>
+      </div>
+      <div class="stat">
+        <div class="number" style="font-size: 2rem;">12 mo</div>
+        <div class="label">Grant period for delivery</div>
+      </div>
+    </div>
+    <p class="source-note mt-4">Source: Reach for the Stars Foundation operational records, 2000–2026. Flyable days estimate based on general aviation weather data for the Temecula Valley region.</p>
+  </div>
+</section>
+
+<!-- ==================== SOURCES ==================== -->
+<section class="bg-soft">
+  <div class="container">
+    <p class="section-label">Sources</p>
+    <h3 class="mb-3">References</h3>
+    <div style="font-size: 0.85rem; color: var(--slate-500); line-height: 1.8;">
+      <p class="mb-2">Armour, B. S., Courtney-Long, E. A., Fox, M. H., Fredine, H., &amp; Cahill, A. (2016). Prevalence and Causes of Paralysis — United States, 2013. <em>American Journal of Public Health, 106</em>(10), 1855–1857.</p>
+      <p class="mb-2">Christopher &amp; Dana Reeve Foundation. (2022). Living with Paralysis &amp; Caregiver National Survey.</p>
+      <p class="mb-2">Christopher &amp; Dana Reeve Foundation. (n.d.). Stats About Paralysis. Retrieved February 2026.</p>
+      <p class="mb-2">Diaz, R., Miller, E. K., Kraus, E., &amp; Fredericson, M. (2019). Impact of Adaptive Sports Participation on Quality of Life. <em>Sports Medicine and Arthroscopy Review, 27</em>(2), 73–82.</p>
+      <p>Isidoro-Cabañas, E., Soto-Rodríguez, F. J., Morales-Rodríguez, F. M., &amp; Pérez-Mármol, J. M. (2023). Benefits of Adaptive Sport on Physical and Mental Quality of Life in People with Physical Disabilities: A Meta-Analysis. <em>Healthcare, 11</em>(18), 2480.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Reach for the Stars Foundation &middot; 32365 Thompson Road, Winchester, CA 92596 &middot; <a href="mailto:brianfliesballoons@gmail.com">brianfliesballoons@gmail.com</a></p>
+    <p class="mt-1" style="font-size: 0.75rem; color: var(--slate-300);">Sky Without Limits Program — Christopher &amp; Dana Reeve Foundation Quality of Life Grant Application 2026</p>
+  </div>
+</footer>
+
+<script>
+// Animate data bars on scroll
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.data-bar-fill').forEach(bar => {
+        bar.classList.add('animate');
+      });
+      barObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.2 });
+
+document.querySelectorAll('.data-bar-group').forEach(group => {
+  barObserver.observe(group);
+});
+
+// Animate other elements
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('fade-up');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.research-card, .kpi, .timeline-item').forEach(el => {
+  fadeObserver.observe(el);
+});
+</script>
+
+</body>
+</html>
